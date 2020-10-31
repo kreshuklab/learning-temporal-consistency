@@ -66,34 +66,26 @@ from torch.utils.data import RandomSampler
 parser = argparse.ArgumentParser()
 parser.add_argument("-name", type=str, help='Name of model')
 parser.add_argument("-batch_size", type=int, help='Batch size', default=10)
-# parser.add_argument("-LOSS_TYPE", type=str, help='Type of loss func to use (BCE or DICE or DIST)')
-parser.add_argument("-DIST_lambda", type=float, default = 1,help='Lambda coef for distance loss')
 
 parser.add_argument("-EPOCHS", type=int, help='Number of epochs', default=300)
-# parser.add_argument("-AUG_ON", action="store_true", help='Whether to use augmentation or not')
-parser.add_argument("-NUM_CHAN", type=int, help='Number of channels to use', default=7)
-# parser.add_argument("-ADD_CHAN", action="store_true", help='Whether to add addition channels to input data')
+parser.add_argument("-NUM_CHAN", type=int, help='Number of channels to use in input z-stack', default=7)
 parser.add_argument("-BIG_MODEL", action="store_true", help='Whether to use a bigger model')
 parser.add_argument("-lr", type=float, default = 1e-3,help='Learning Rate')
 parser.add_argument("-cuda", type=int, default=7,help='Cuda device')
-parser.add_argument("-use_npy_data", action="store_true", help='Whether to use preprocessed and saved data')
-parser.add_argument("-DATA_TYPE", type=str, help='Data to train on (NUCL or TRITC or CHROM)')
-parser.add_argument("-DEVIATE", action="store_true", help='Whether to deviate focused plane')
+parser.add_argument("-DATA_TYPE", type=str, help='Data to train on (NUCL or TRITC)')
+parser.add_argument("-DEVIATE", action="store_true", help='Whether to deviate focused plane index in input')
 
 
 args = parser.parse_args()
 batch_size = args.batch_size
 NAME = args.name
 BIG_MODEL = args.BIG_MODEL
-# AUG_ON = args.AUG_ON
 EPOCHS = args.EPOCHS
 LR = args.lr
 NUM_CHAN = args.NUM_CHAN
 CUDA = args.cuda
-use_npy_data = args.use_npy_data
 DATA_TYPE = args.DATA_TYPE 
 DEVIATE = args.DEVIATE
-DIST_lambda = args.DIST_lambda
 
 torch.cuda.set_device(CUDA)
 
@@ -108,7 +100,11 @@ os.makedirs(WEIGHTS_PATH, exist_ok=False)
 f = open(f'{PATH}/settings.txt', 'w')
 f.write(' '.join(sys.argv))
 f.close()
-## Loading dataset info
+
+######################
+#    Loaders init    #
+######################
+
 data_list = create_dataset_info.assemble_dataset_from_py()
 if DATA_TYPE == 'NUCL':
     data_list = [x for x in data_list if x['use_to_train'] == True]
@@ -142,7 +138,6 @@ print("Number of train files: ", len(train_idx))
 print('Number of val files ', len(val_idx))
 print('Number of test files ', len(test_idx))
 
-### Augmentations
 transf_train = make_train_transf(image_preproc, mask_preprocc)
 
 train_dataset = TrainLoader(
@@ -184,7 +179,10 @@ val_batch_gen = torch.utils.data.DataLoader(val_dataset,
 image_channels = NUM_CHAN
 pred_channels = 1
 
-### MODEL
+####################
+#    Model init    #
+####################
+
 if BIG_MODEL:
     res_unet = build_big_model(image_channels, pred_channels).cuda()
 else:
@@ -208,10 +206,12 @@ if DATA_TYPE == 'NUCL':
     log_train_name = 'Train loss'
     log_val_name = 'Val loss'
     lr_log_name = 'Segment_Learning_Rate'
+
 elif DATA_TYPE == 'TRITC':
     log_train_name = 'Train TRITC loss'
     log_val_name = 'Val TRITC loss'
     lr_log_name = 'Segment_Learning_Rate'
+
 elif DATA_TYPE == 'CHROM':
     log_train_name = 'Train CHROM loss'
     log_val_name = 'Val CHROM loss'
@@ -221,7 +221,10 @@ opt = torch.optim.Adam(res_unet.parameters(), lr = LR)
 
 writer = SummaryWriter(LOGS_PATH)
 
-print("Start training")
+
+########################
+#    Model training    #
+########################
 for epoch in range(0, epochs+1):
     print('Training Stage')
     start_time = time.time()
@@ -230,9 +233,7 @@ for epoch in range(0, epochs+1):
     for cur_batch in train_batch_gen:
         X_batch = cur_batch['X'].cuda()
         y_batch = cur_batch['Y'].cuda()
-        loss1 = compute_dice_loss(segment_pred, X_batch, y_batch)
-        loss2 = compute_dist_loss(res_unet, X_batch, y_batch)
-        loss = loss1 + DIST_lambda*loss2
+        loss = compute_dice_loss(segment_pred, X_batch, y_batch)
 
         loss.backward()
         opt.step()
@@ -249,10 +250,7 @@ for epoch in range(0, epochs+1):
         X_batch = cur_batch['X'].cuda()
         y_batch = cur_batch['Y'].cuda()
 
-        loss1 = compute_dice_loss(segment_pred, X_batch, y_batch)
-        loss2 = compute_dist_loss(res_unet, X_batch, y_batch)
-        loss = loss1 + DIST_lambda*loss2
-
+        loss = compute_dice_loss(segment_pred, X_batch, y_batch)
         ep_loss.append(loss.detach().data.cpu().numpy())
 
     val_loss.append(np.mean(ep_loss))
@@ -273,7 +271,6 @@ for epoch in range(0, epochs+1):
         LR = LR*2/3
         update_lr(opt, LR)
 
-    # Then we print the results for this epoch:
     print("Epoch {} of {} took {:.3f}s".format(
         epoch + 1, epochs, time.time() - start_time))
 

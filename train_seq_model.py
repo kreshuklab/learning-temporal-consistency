@@ -48,17 +48,16 @@ from torch.utils.data import RandomSampler
 parser = argparse.ArgumentParser()
 parser.add_argument("-BASE_MODEL_NAME", type=str, help='Name of model', default = 'more_data' )
 parser.add_argument("-EPOCHS", type=int, help='Number of epochs', default=500)
-parser.add_argument("-TIME_LEN", type=int, help='Sequence len', default=2)
-parser.add_argument("-DIM_RANGE", type=int, help='Spacial len', default=0)
-parser.add_argument("-NUM_CHAN", type=int, help='Number channels per example', default=7)
+parser.add_argument("-TIME_LEN", type=int, help='Sequence len for temporal consistency', default=2)
+parser.add_argument("-DIM_LEN", type=int, help='Sequence len for dimensional consistency', default=0)
+parser.add_argument("-NUM_CHAN", type=int, help='Number channels per example in input z-stack', default=7)
 parser.add_argument("-batch_size", type=int, help='Batch size', default=7)
 parser.add_argument("-ADD_NAME", type=str, default='')
-parser.add_argument("-INIT_NEW", default=False, action="store_true")
+parser.add_argument("-INIT_NEW", default=False, action="store_true", help='Train new model (not pretrained one)')
 parser.add_argument("-lr_time", type=float, default=1e-5, help='Learning rate for time consistency loss')
-parser.add_argument("-lr_dim", type=float, default=1e-5, help='Learning rate for time consistency loss')
+parser.add_argument("-lr_dim", type=float, default=1e-5, help='Learning rate for time dimensional loss')
 parser.add_argument("-lr_seg", type=float, default=1e-4,help='Learning rate for semantic segmentation loss')
 parser.add_argument("-cuda", type=int, default=7,help='Cuda device')
-parser.add_argument("-use_npy_data", action="store_true", help='Whether to use preprocessed and saved data for semantic segmentation learning')
 parser.add_argument("-TIME_LOSS", type=str, default='DICE')
 parser.add_argument("-DIM_LOSS", type=str, default='DICE')
 parser.add_argument("-DATA_TYPE", type=str, help='Data to train on (NUCL or TRITC)')
@@ -75,13 +74,12 @@ lr_seg = args.lr_seg
 CUDA = args.cuda
 TIME_LOSS = args.TIME_LOSS
 lr_dim = args.lr_dim
-use_npy_data = args.use_npy_data
-DIM_RANGE = args.DIM_RANGE
+DIM_LEN = args.DIM_LEN
 DIM_LOSS = args.DIM_LOSS
 DATA_TYPE = args.DATA_TYPE
 TIME_LEN = args.TIME_LEN
 
-NO_DIM = True if DIM_RANGE == 0 else False
+NO_DIM = True if DIM_LEN == 0 else False
 NO_TIME = True if TIME_LEN == 0 else False
 
 torch.cuda.set_device(CUDA)
@@ -104,14 +102,19 @@ f = open(f'{PATH}/settings.txt', 'w')
 f.write(' '.join(sys.argv))
 f.close()
 
+###########################
+#    PATHS DETAILS    #
+###########################
+
 all_data_list = create_dataset_info.assemble_dataset_from_py()
-### SEQ DATA
+
+### SEQUENTAIL DATA
 data_list = [x for x in all_data_list if x['name'] in ['movie-holo-overnight-day1', 'movie-holo-overnight-day2']]
 seq_data_names_list =  np.array([x['absolute_data_names'] for x in data_list])
 seq_focused_frame_list = np.array([ [x['name2focused_frame'][y] for y in x['data_names']]  for x in data_list])
 
 
-### TRAIN DATA
+### SEPARATE FRAMES DATA
 data_list = create_dataset_info.assemble_dataset_from_py()
 if DATA_TYPE == 'NUCL':
     data_list = [x for x in data_list if x['use_to_train'] == True]
@@ -143,11 +146,16 @@ print("Number of train files: ", len(train_idx))
 print('Number of val files ', len(val_idx))
 print('Number of test files ', len(test_idx))
 
-### Augmentation and Loaders
+######################
+#    Loaders init    #
+######################
+
+## Augmentations init
 transf_seq = make_seq_transf(TIME_LEN, NUM_CHAN, image_preproc)
 transf_train = make_train_transf(image_preproc, mask_preprocc)
 
-gen_seqs = [SeqLoader(x, y, seq_len = TIME_LEN, transform=transf_seq, use_npy_data=use_npy_data) 
+## Sequential loader init
+gen_seqs = [SeqLoader(x, y, seq_len = TIME_LEN, transform=transf_seq, use_npy_data=False) 
                     for x,y in zip(seq_data_names_list, seq_focused_frame_list)]
 seq_batch_gens = [torch.utils.data.DataLoader(x, batch_size=batch_size, shuffle=True, num_workers=15) for x in gen_seqs]
 print("Number of sequences to train time consistency: ", len(seq_batch_gens))
@@ -156,7 +164,7 @@ data_list = create_dataset_info.assemble_dataset_from_py()
 data_names_dim =  np.hstack([x['absolute_data_names'] for x in data_list])
 focused_frame_dim = np.hstack([ [x['name2focused_frame'][y] for y in x['data_names']]  for x in data_list])
 
-gen_dim = DimLoader(data_names_dim, focused_frame_dim, seq_range=DIM_RANGE, num_channels=7, transform=image_mask_norm)
+gen_dim = DimLoader(data_names_dim, focused_frame_dim, seq_range=DIM_LEN, num_channels=7, transform=image_mask_norm)
 dim_batch_gen = torch.utils.data.DataLoader(gen_dim, batch_size=batch_size//3, shuffle=True, num_workers=10)
 
 train_dataset = TrainLoader(
@@ -191,11 +199,15 @@ val_batch_gen = torch.utils.data.DataLoader(val_dataset,
                                               batch_size=batch_size,
                                               pin_memory=True)
 
+
+######################
+#    Models init    #
+######################
+
 if INIT_NEW:
     print("Init new model")
     base_model = res_unet = torch.nn.Sequential(
                             inf_model.ResBlockUNet(dim=2, in_channels=NUM_CHAN, out_channels=1, activated=False),
-                            # RemoveSingletonDimension(dim=1),
                             torch.nn.Sigmoid()
                             )
 else:
@@ -235,6 +247,7 @@ if DATA_TYPE == 'NUCL':
     log_train_name = 'Train loss'
     log_val_name = 'Val loss'
     lr_log_name = 'Segment_Learning_Rate'
+
 elif DATA_TYPE == 'TRITC':
     log_train_name = 'Train TRITC loss'
     log_val_name = 'Val TRITC loss'
@@ -242,6 +255,7 @@ elif DATA_TYPE == 'TRITC':
 
 if TIME_LOSS == 'DICE':
     time_loss = losses.compute_loss_time_dice
+
 elif TIME_LOSS == 'BCE':
     time_loss = losses.compute_loss_time_bce
 else:
@@ -250,8 +264,10 @@ else:
 
 if DIM_LOSS == 'DICE':
     dim_loss = losses.compute_loss_time_dice
+
 elif TIME_LOSS == 'BCE':
     dim_loss = losses.compute_loss_time_bce
+
 else:
     print("Time loss not found")
     assert False
@@ -259,6 +275,10 @@ else:
 
 seg_loss = losses.compute_dice_loss
 writer = SummaryWriter(LOGS_PATH)
+
+########################
+#    Models training    #
+########################
 
 print("Start training")
 for epoch in range(epochs):
@@ -322,8 +342,8 @@ for epoch in range(epochs):
     cur_lr = get_lr(opt_dim)
     writer.add_scalar('Dim_Learning_Rate', cur_lr, global_step=epoch)
     
+    ### Train modifications ###
     if epoch %10 == 0:
-            ### Validation Semantic Seg ###
         val_ep_loss = []
         val_ep_loss_tritc = []
         base_model.train(False)
@@ -373,6 +393,7 @@ for epoch in range(epochs):
         print("  val loss: \t{:.6f}".format(
             np.mean(val_ep_loss) ))
         
+        ##### Visualization #####
         if epoch %50 == 0:
             base_model.train(False)
             
@@ -381,10 +402,10 @@ for epoch in range(epochs):
             pred1 = prediction_postprocessing(pred1[0,0].data.cpu().numpy())
             pred2 = prediction_postprocessing(pred2[0,0].data.cpu().numpy())
             
-            pred_base1 = to_check_model(one_batch[:,0])#base_model(one_batch[:,0])
+            pred_base1 = to_check_model(one_batch[:,0])
             pred_base1 = prediction_postprocessing(pred_base1[0,0].data.cpu().numpy())
             
-            pred_base2 = to_check_model(one_batch[:,1])#base_model(one_batch[:,1])
+            pred_base2 = to_check_model(one_batch[:,1])
             pred_base2 = prediction_postprocessing(pred_base2[0,0].data.cpu().numpy())
             
             input_data1 = one_batch[:,0].cpu()[0,0].data.numpy()

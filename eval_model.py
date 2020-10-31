@@ -63,7 +63,7 @@ def eval_model(data_list, model_name, data_type):
     print(f"{data_type} IOU on test of model {model_name}: ", np.mean(iou_scores))
 
     ole_scores = []
-    if data_type == 'NUCL': ## OLE
+    if data_type == 'NUCL':
         data_list = create_dataset_info.assemble_dataset_from_py()
         data_list = [x for x in data_list if x['is_sequential'] == True]
         data_names =  [x['absolute_data_names'] for x in data_list]

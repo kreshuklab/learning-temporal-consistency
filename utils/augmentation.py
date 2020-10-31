@@ -79,54 +79,6 @@ def make_seq_transf(seq_len, NUM_CHAN, image_preproc=None):
     
     return lambda imgs: seq_transformer(aug, imgs, additional_targets, seq_len, image_preproc)
 
-
-# def train_transformer(aug, image, mask, additional_targets, image_proc=None, mask_proc=None):
-#     if mask_proc is not None:
-#         mask = mask_proc(mask)
-
-#     if image_proc is not None:
-#         data = {'image':image_proc(image[0]), 'mask':mask}
-#         for idx, targ_name in enumerate(additional_targets.keys()):
-#             data[targ_name] = image_proc(image[idx+1])
-#     else:
-#         data = {'image':image[0], 'mask':mask}
-#         for idx, targ_name in enumerate(additional_targets.keys()):
-#             data[targ_name] = image[idx+1]
-
-#     augmented = aug(**data)
-
-#     mask_aug = augmented['mask']
-#     image_aug = augmented['image']
-#     to_stack = []
-#     to_stack.append(image_aug)
-#     for targ_name in additional_targets.keys():
-#         to_stack.append(augmented[targ_name])
-#     image_aug = np.stack(to_stack, axis = 2)
-#     return image_aug, mask_aug
-
-
-# def make_train_transf(NUM_CHAN, image_proc=None, mask_proc=None):
-
-#     additional_targets = OrderedDict()
-#     for i, image in enumerate(range(NUM_CHAN)[1:]):
-#         additional_targets['image' + str(i)] = 'image'
-
-#     aug = Compose([
-#         VerticalFlip(p=0.4),
-#         RandomRotate90(p=0.4),
-#         Transpose(p=0.4),
-#         RandomBrightnessContrast(p=0.5,
-#                                 brightness_limit=0.3,
-#                                 contrast_limit=0.3, 
-#                                 ),
-#         OneOf([
-#             ElasticTransform(p=0.9, alpha=90, sigma=120 * 0.05, alpha_affine=120 * 0.03),
-#             # GridDistortion(p=0.9),
-#         ], p=0.8)
-#     ], additional_targets=additional_targets)
-
-#     return lambda imgs, mask: train_transformer(aug, imgs, mask,  additional_targets, image_proc, mask_proc)
-
 def make_train_transf(image_proc=None, mask_proc=None):
     aug = A.ReplayCompose([
         VerticalFlip(p=0.4),

@@ -1,0 +1,9 @@
+.ipynb_checkpoints/
+.vscode/
+.DS_Store
+__pycache__/
+data_config/__pycache__/
+focused_frames/.DS_Store
+focused_frames/.ipynb_checkpoints/
+utils/__pycache__/
+utils/.DS_Store

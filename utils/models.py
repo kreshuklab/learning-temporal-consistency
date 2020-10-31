@@ -10,16 +10,14 @@ import skimage
 class SeqNet(nn.Module):
     def __init__(self, brunch_mdoel):
         super().__init__()
-        self.branch = brunch_mdoel#torch.load(MODEL_PATH, map_location={'cuda:7': 'cuda:0'})
+        self.branch = brunch_mdoel
         self.branch.train(True)
 
     def forward(self, img1, img2):
         out = []
-#         for cur_img in imgs:
-#             out.append(self.branch(cur_img)[None])
         res1 = self.branch(img1)
         res2 = self.branch(img2)    
-        return res1, res2 #torch.cat(out, dim=0)
+        return res1, res2
     
     def get_brunch(self):
         self.branch.train(False)
@@ -30,13 +28,11 @@ def build_big_model(image_channels, pred_channels=1, no_sigm=False):
         return torch.nn.Sequential(
             ConvReLU2D(in_channels=image_channels, out_channels=8, kernel_size=3),
             inf_model.ResBlockUNet(dim=2, in_channels=8, out_channels=pred_channels, activated=False),
-            # RemoveSingletonDimension(dim=1),
         )
     else:
         return torch.nn.Sequential(
             ConvReLU2D(in_channels=image_channels, out_channels=8, kernel_size=3),
             inf_model.ResBlockUNet(dim=2, in_channels=8, out_channels=pred_channels, activated=False),
-            # RemoveSingletonDimension(dim=1),
             torch.nn.Sigmoid()
         )
 
@@ -44,12 +40,10 @@ def build_standart_model(image_channels, pred_channels=1, no_sigm=False):
     if no_sigm:
         return torch.nn.Sequential(
             inf_model.ResBlockUNet(dim=2, in_channels=image_channels, out_channels=pred_channels, activated=False),
-            # RemoveSingletonDimension(dim=1),
         )
     else:
         return torch.nn.Sequential(
             inf_model.ResBlockUNet(dim=2, in_channels=image_channels, out_channels=pred_channels, activated=False),
-            # RemoveSingletonDimension(dim=1),
             torch.nn.Sigmoid()
         )
 
