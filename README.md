@@ -39,4 +39,4 @@ Evaluation script:
 python eval_model.py  -name <model name> -DATA_TYPE <NUCL for nucleoli, TRITC for nuclei>
 ``` 
 
-In case you have any questions about the paper/code feel free to contact [Akhmedkhan Shabanov](shabanov.ae@phystech.edu).
+In case you have any questions about the paper/code feel free to contact [Akhmedkhan Shabanov](mailto:shabanov.ae@phystech.edu).
