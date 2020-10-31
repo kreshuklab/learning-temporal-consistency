@@ -1,10 +1,10 @@
 # Unsupervised temporal consistency improvement for video segmentation with siamese networks
 
-This repository provides code for "unsupervised temporal consistency improvement for video segmentation with siamese networks"
+This repository provides code for "Unsupervised temporal consistency improvement for video segmentation with siamese networks"
 
 ## Code Structure
 Paths to data should be provided in *data_config/datasets_config.py* (there are some ready examples).
-In the config file one also should provide information about focus plane indexes. Precomputed (or manually labeled) information about indexes is contained in *focused_frames/* directory
+In the config file one also should provide information about focus plane indexes. Precomputed (or manually labeled) information about indexes should be contained in *focused_frames/* directory
 
 *utils* contains some additional training/visualization/logging helper functions.
 
