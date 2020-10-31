@@ -1,6 +1,6 @@
-# UNSUPERVISED TEMPORAL CONSISTENCY IMPROVEMENT FOR VIDEOSEGMENTATION WITH SIAMESE NETWORKS
+# Unsupervised temporal consistency improvement for video segmentation with siamese networks
 
-This repository provides code for "UNSUPERVISED TEMPORAL CONSISTENCY IMPROVEMENT FOR VIDEOSEGMENTATION WITH SIAMESE NETWORKS"
+This repository provides code for "unsupervised temporal consistency improvement for video segmentation with siamese networks"
 
 ## Code Structure
 Paths to data should be provided in *data_config/datasets_config.py* (there are some ready examples).
