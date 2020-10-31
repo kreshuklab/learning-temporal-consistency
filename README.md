@@ -1,6 +1,6 @@
 # Unsupervised temporal consistency improvement for video segmentation with siamese networks
 
-This repository provides code for "Unsupervised temporal consistency improvement for video segmentation with siamese networks"
+This repository provides code for "Unsupervised temporal consistency improvement for video segmentation with siamese networks" Akhmedkhan Shabanov, Daja Schichler, Constantin Pape, Sara Cuylen-Haering, Anna Kreshuk.
 
 ## Code Structure
 Paths to data should be provided in *data_config/datasets_config.py* (there are some ready examples).
@@ -38,3 +38,5 @@ Evaluation script:
 ```
 python eval_model.py  -name <model name> -DATA_TYPE <NUCL for nucleoli, TRITC for nuclei>
 ``` 
+
+In case you have any questions about the paper/code feel free to contact [Akhmedkhan Shabanov](shabanov.ae@phystech.edu).
