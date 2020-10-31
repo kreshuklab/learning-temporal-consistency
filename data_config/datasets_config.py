@@ -1,28 +1,5 @@
 import os 
 
-# data_template = {
-#     'name': '', 
-#     'data_path':'',
-#     'data_names':[],
-
-#     'raw_target_path':'',
-#     'raw_target_names':[],
-
-#     'mask_path':'',
-#     'mask_names':[],
-
-#     'train_idx':[],
-#     'val_idx':[],
-#     'test_idx':[],
-
-#     'name2focused_frame':{},
-
-#     'absolute_data_names':[],
-
-#     'use_to_train':True,
-#     'use_time_filtering':False
-# }
-
 def data_train1():
     d = {
             'name': 'train_data_1', 
@@ -166,92 +143,6 @@ def movie1():
             'is_sequential':True,
             'name2focused_frame': [],
     }
-        #     'name2focused_frame': {'250219-test5-overnight-every-30s_RI_frame01.tiff':48,
-        #                             '250219-test5-overnight-every-30s_RI_frame101.tiff':48,
-        #                             '250219-test5-overnight-every-30s_RI_frame11.tiff':46,
-        #                             '250219-test5-overnight-every-30s_RI_frame111.tiff':46,
-        #                             '250219-test5-overnight-every-30s_RI_frame121.tiff':48,
-        #                             '250219-test5-overnight-every-30s_RI_frame131.tiff':55,
-        #                             '250219-test5-overnight-every-30s_RI_frame141.tiff':49,
-        #                             '250219-test5-overnight-every-30s_RI_frame151.tiff':52,
-        #                             '250219-test5-overnight-every-30s_RI_frame161.tiff':53,
-        #                             '250219-test5-overnight-every-30s_RI_frame171.tiff':52,
-        #                             '250219-test5-overnight-every-30s_RI_frame181.tiff':57,
-        #                             '250219-test5-overnight-every-30s_RI_frame191.tiff':55,
-        #                             '250219-test5-overnight-every-30s_RI_frame201.tiff':62,
-        #                             '250219-test5-overnight-every-30s_RI_frame21.tiff':49,
-        #                             '250219-test5-overnight-every-30s_RI_frame211.tiff':60,
-        #                             '250219-test5-overnight-every-30s_RI_frame221.tiff':55,
-        #                             '250219-test5-overnight-every-30s_RI_frame231.tiff':56,
-        #                             '250219-test5-overnight-every-30s_RI_frame241.tiff':62,
-        #                             '250219-test5-overnight-every-30s_RI_frame251.tiff':58,
-        #                             '250219-test5-overnight-every-30s_RI_frame261.tiff':61,
-        #                             '250219-test5-overnight-every-30s_RI_frame271.tiff':59,
-        #                             '250219-test5-overnight-every-30s_RI_frame281.tiff':59,
-        #                             '250219-test5-overnight-every-30s_RI_frame291.tiff':58,
-        #                             '250219-test5-overnight-every-30s_RI_frame301.tiff':61,
-        #                             '250219-test5-overnight-every-30s_RI_frame31.tiff':50,
-        #                             '250219-test5-overnight-every-30s_RI_frame311.tiff':60,
-        #                             '250219-test5-overnight-every-30s_RI_frame321.tiff':64,
-        #                             '250219-test5-overnight-every-30s_RI_frame331.tiff':58,
-        #                             '250219-test5-overnight-every-30s_RI_frame341.tiff':60,
-        #                             '250219-test5-overnight-every-30s_RI_frame351.tiff':66,
-        #                             '250219-test5-overnight-every-30s_RI_frame361.tiff':58,
-        #                             '250219-test5-overnight-every-30s_RI_frame371.tiff':63,
-        #                             '250219-test5-overnight-every-30s_RI_frame381.tiff':59,
-        #                             '250219-test5-overnight-every-30s_RI_frame391.tiff':64,
-        #                             '250219-test5-overnight-every-30s_RI_frame401.tiff':60,
-        #                             '250219-test5-overnight-every-30s_RI_frame41.tiff':43,
-        #                             '250219-test5-overnight-every-30s_RI_frame411.tiff':65,
-        #                             '250219-test5-overnight-every-30s_RI_frame421.tiff':66,
-        #                             '250219-test5-overnight-every-30s_RI_frame431.tiff':64,
-        #                             '250219-test5-overnight-every-30s_RI_frame441.tiff':63,
-        #                             '250219-test5-overnight-every-30s_RI_frame451.tiff':63,
-        #                             '250219-test5-overnight-every-30s_RI_frame461.tiff':61,
-        #                             '250219-test5-overnight-every-30s_RI_frame471.tiff':61,
-        #                             '250219-test5-overnight-every-30s_RI_frame481.tiff':67,
-        #                             '250219-test5-overnight-every-30s_RI_frame491.tiff':65,
-        #                             '250219-test5-overnight-every-30s_RI_frame501.tiff':63,
-        #                             '250219-test5-overnight-every-30s_RI_frame51.tiff':50,
-        #                             '250219-test5-overnight-every-30s_RI_frame511.tiff':65,
-        #                             '250219-test5-overnight-every-30s_RI_frame521.tiff':63,
-        #                             '250219-test5-overnight-every-30s_RI_frame531.tiff':64,
-        #                             '250219-test5-overnight-every-30s_RI_frame541.tiff':62,
-        #                             '250219-test5-overnight-every-30s_RI_frame551.tiff':67,
-        #                             '250219-test5-overnight-every-30s_RI_frame561.tiff':65,
-        #                             '250219-test5-overnight-every-30s_RI_frame571.tiff':62,
-        #                             '250219-test5-overnight-every-30s_RI_frame581.tiff':68,
-        #                             '250219-test5-overnight-every-30s_RI_frame591.tiff':65,
-        #                             '250219-test5-overnight-every-30s_RI_frame601.tiff':68,
-        #                             '250219-test5-overnight-every-30s_RI_frame61.tiff':56,
-        #                             '250219-test5-overnight-every-30s_RI_frame611.tiff':66,
-        #                             '250219-test5-overnight-every-30s_RI_frame621.tiff':71,
-        #                             '250219-test5-overnight-every-30s_RI_frame631.tiff':66,
-        #                             '250219-test5-overnight-every-30s_RI_frame641.tiff':68,
-        #                             '250219-test5-overnight-every-30s_RI_frame651.tiff':63,
-        #                             '250219-test5-overnight-every-30s_RI_frame661.tiff':67,
-        #                             '250219-test5-overnight-every-30s_RI_frame671.tiff':68,
-        #                             '250219-test5-overnight-every-30s_RI_frame681.tiff':70,
-        #                             '250219-test5-overnight-every-30s_RI_frame691.tiff':74,
-        #                             '250219-test5-overnight-every-30s_RI_frame701.tiff':63,
-        #                             '250219-test5-overnight-every-30s_RI_frame71.tiff':44,
-        #                             '250219-test5-overnight-every-30s_RI_frame711.tiff':66,
-        #                             '250219-test5-overnight-every-30s_RI_frame721.tiff':70,
-        #                             '250219-test5-overnight-every-30s_RI_frame731.tiff':68,
-        #                             '250219-test5-overnight-every-30s_RI_frame741.tiff':72,
-        #                             '250219-test5-overnight-every-30s_RI_frame751.tiff':76,
-        #                             '250219-test5-overnight-every-30s_RI_frame761.tiff':72,
-        #                             '250219-test5-overnight-every-30s_RI_frame771.tiff':70,
-        #                             '250219-test5-overnight-every-30s_RI_frame781.tiff':69,
-        #                             '250219-test5-overnight-every-30s_RI_frame791.tiff':74,
-        #                             '250219-test5-overnight-every-30s_RI_frame801.tiff':67,
-        #                             '250219-test5-overnight-every-30s_RI_frame81.tiff':49,
-        #                             '250219-test5-overnight-every-30s_RI_frame811.tiff':70,
-        #                             '250219-test5-overnight-every-30s_RI_frame821.tiff':72,
-        #                             '250219-test5-overnight-every-30s_RI_frame831.tiff':69,
-        #                             '250219-test5-overnight-every-30s_RI_frame841.tiff':69,
-        #                             '250219-test5-overnight-every-30s_RI_frame91.tiff':55 }
-        # }
 
     test_files_2 = np.array([x for x in sorted(os.listdir(d['data_path']))])
     file_numbers = [int(x.split('.')[-2].split('frame')[-1]) for x in test_files_2]
@@ -399,7 +290,6 @@ def sample1_metaphase():
 
     d['mask_names'] = [x for x in sorted(os.listdir(d['mask_path'])) if 'oof' not in x and 'diff-focus' not in x]
 
-    # d['data_names'] = sorted([x for x in sorted(os.listdir(d['data_path'])) if 'RI' in x and 'TRI' not in x and 'infocus' in x])
     d['data_names'] = [x.replace('TRITC', 'RI').replace('npy', 'tiff') for x in d['mask_names']]
     d['raw_target_names'] = [x.replace('npy', 'tiff') for x in d['mask_names']]
     
@@ -441,7 +331,6 @@ def sample4_metaphase():
 
     d['mask_names'] = [x for x in sorted(os.listdir(d['mask_path'])) if 'oof' not in x and 'diff-focus' not in x]
 
-    # d['data_names'] = sorted([x for x in sorted(os.listdir(d['data_path'])) if 'RI' in x and 'TRI' not in x and 'infocus' in x])
     d['data_names'] = [x.replace('FITC', 'RI').replace('npy', 'tiff') for x in d['mask_names']]
     d['raw_target_names'] = [x.replace('npy', 'tiff') for x in d['mask_names']]
     

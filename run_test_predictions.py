@@ -42,14 +42,10 @@ from utils.models import SeqNet
 from data_config import create_dataset_info
 from eval_model import eval_model
 from utils.augmentation import image_mask_norm
-# import my_utils
-# from my_utils import print_one_sample, print_images, metric_hist, calc_iou, mask_preprocc, prediction_postprocessing
-# from my_utils import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-name", type=str, help='Name of model')
 parser.add_argument("-batch_size", type=int, help='size of a batch', default=8)
-# parser.add_argument("-ADD_CHAN", action="store_true", help='Whether to add addition channels to input data')
 parser.add_argument("-MERGE_PLOT_PRED", action="store_true", help='Whether to plot mask and origin on the same plot')
 parser.add_argument("-TTA", action="store_true", help='Whether to use TTA or not')
 parser.add_argument("-NUM_CHAN", type=int, default=7, help='Number of channels')

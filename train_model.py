@@ -65,16 +65,16 @@ from torch.utils.data import RandomSampler
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-name", type=str, help='Name of model')
-parser.add_argument("-batch_size", type=int, help='Batch size')
+parser.add_argument("-batch_size", type=int, help='Batch size', default=10)
 # parser.add_argument("-LOSS_TYPE", type=str, help='Type of loss func to use (BCE or DICE or DIST)')
 parser.add_argument("-DIST_lambda", type=float, default = 1,help='Lambda coef for distance loss')
 
-parser.add_argument("-EPOCHS", type=int, help='Number of epochs')
+parser.add_argument("-EPOCHS", type=int, help='Number of epochs', default=300)
 # parser.add_argument("-AUG_ON", action="store_true", help='Whether to use augmentation or not')
-parser.add_argument("-NUM_CHAN", type=int, help='Number of channels to use')
+parser.add_argument("-NUM_CHAN", type=int, help='Number of channels to use', default=7)
 # parser.add_argument("-ADD_CHAN", action="store_true", help='Whether to add addition channels to input data')
 parser.add_argument("-BIG_MODEL", action="store_true", help='Whether to use a bigger model')
-parser.add_argument("-lr", type=float, default = 2e-4,help='Learning Rate')
+parser.add_argument("-lr", type=float, default = 1e-3,help='Learning Rate')
 parser.add_argument("-cuda", type=int, default=7,help='Cuda device')
 parser.add_argument("-use_npy_data", action="store_true", help='Whether to use preprocessed and saved data')
 parser.add_argument("-DATA_TYPE", type=str, help='Data to train on (NUCL or TRITC or CHROM)')
@@ -297,78 +297,6 @@ for epoch in range(0, epochs+1):
                     ['Origin data','Mask',  
                     'Prediction', 'Preprocessed Prediction'], 2, 2)
 
-        # boarders = sobel(pred[0])
-        # boarders[boarders > 0] = 1
-        # axs[-1].imshow(origin_mask[0]+boarders*50)
-        # axs[-1].set_title("Origin_Mask&Prediction")
         writer.add_figure('Train Images', fig_to_tens, epoch)
 
-
-# test_dataset = TrainLoader(
-#                         images_names=data_names[val_idx],
-#                         mask_names = mask_names[val_idx],
-#                         target_names = target_names[val_idx],
-#                         focused_frame = focused_frame[val_idx],
-#                         transform = image_mask_norm,
-#                         num_channels = NUM_CHAN,
-#                         return_original = True,
-#                         use_npy_data=True)
-
-
-# test_batch_gen = torch.utils.data.DataLoader(test_dataset,
-#                                               batch_size=3,
-#                                               shuffle=False, 
-#                                               num_workers=25)
-
-
-# res_unet = torch.load(f'{PATH}/{NAME}.tar')
-# print( 'Test predicting' )
-
-# res_unet.train(False)
-# test_ious = []
-# nucleoli_predictior = lambda x: res_unet(x)[:,0]
-
-# for X_batch, y_batch, origin in tqdm_notebook(test_batch_gen):
-#     if TTA:
-#         pred_mask = d4_image2mask(nucleoli_predictior, X_batch.cuda())
-#     else:
-#         pred_mask = res_unet.cuda()(X_batch.cuda())
-#     for idx in range(len(range(pred_mask.shape[0]))):
-#         input_data = X_batch[idx].data.numpy().transpose(1,2,0)
-#         truth = origin[idx][0].data.numpy()
-#         proc_mask = y_batch[idx][0].data.numpy()
-
-#         pred = pred_mask[idx][0].data.cpu().numpy()
-#         pred = prediction_postprocessing(pred)
-#         boarders = sobel(pred)
-#         boarders[boarders > 0] = 1
-        
-#         fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(15, 15))
-#         axs = axs.flat
-
-#         axs[0].imshow(input_data[:, :, input_data.shape[-1]//2])
-#         axs[0].set_title("Origin data")
-
-#         axs[1].imshow(truth)
-#         axs[1].set_title("Origin_Mask")
-
-#         axs[2].imshow(proc_mask)
-#         axs[2].set_title("Processed Mask")
-
-#         axs[3].imshow(input_data[:,:,input_data.shape[-1]//2]+boarders*0.2)
-#         axs[3].set_title("Origin&Prediction")
-        
-#         axs[4].imshow(truth+boarders*50)
-#         axs[4].set_title("Origin_Mask&Prediction")
-        
-#         axs[5].imshow(y_batch[idx][0].data.numpy())
-#         axs[5].imshow(1-pred, alpha=0.2, cmap='Greys')
-#         axs[5].set_title("Mask&Prediction")
-        
-#         writer.add_figure('Test Images',fig, idx)
-        
-#         test_ious.append(calc_iou(pred, y_batch[idx][0].data.numpy()))
-
-
 writer.close()
-# writer.add_scalar('Mean test IOU', np.mean(test_ious))
