@@ -34,7 +34,7 @@ Saving predictions:
 ```
 python run_test_predictions.py -name <model name> -TTA -DATA_TYPE <NUCL for nucleoli, TRITC for nuclei> -cuda <cuda id>
 ```
-Evaluation script:
+Evaluate model:
 ```
 python eval_model.py  -name <model name> -DATA_TYPE <NUCL for nucleoli, TRITC for nuclei>
 ``` 
